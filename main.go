@@ -17,7 +17,7 @@ type Student struct {
 }
 
 func main() {
-	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost/gAT?sslmode=disable")
+	db, err := sql.Open("postgres", "https://secure-peak-53511.herokuapp.com")
 	if err != nil {
 		panic(err)
 	}
@@ -50,6 +50,6 @@ func main() {
 
 	for _, stud := range studs {
 		// fmt.Println(bk.isbn, stud.title, bk.author, bk.price)
-		fmt.Printf("%s, %s, %s, %b\n", stud.name, stud.rfid, stud.password, stud.partial)
+		fmt.Printf("%d, %s, %s, %s, %b\n", stud.id, stud.name, stud.rfid, stud.password, stud.partial)
 	}
 }
