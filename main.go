@@ -38,14 +38,15 @@ type Student struct {
 }
 
 func main() {
-	port := os.Getenv("PORT")
-
 	http.HandleFunc("/", redirectStudent)
 	http.HandleFunc("/student", studentsIndex)
 	http.HandleFunc("/student/show", studentShow)
 	http.HandleFunc("/student/update", studentUpdateProcess)
 	// http.HandleFunc("/books/delete/process", booksDeleteProcess)
-	http.ListenAndServe(port, nil)
+	err := http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func redirectStudent(w http.ResponseWriter, r *http.Request) {
