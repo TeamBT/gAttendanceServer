@@ -44,7 +44,7 @@ func main() {
 	http.HandleFunc("/student/show", studentShow)
 	http.HandleFunc("/student/update", studentUpdateProcess)
 	http.HandleFunc("/student/reset", resetStudents)
-	// http.HandleFunc("/books/delete/process", booksDeleteProcess)
+	http.HandleFunc("/student/delete", deleteStudent)
 	err := http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 	if err != nil {
 		panic(err)
@@ -161,33 +161,37 @@ func studentUpdateProcess(w http.ResponseWriter, r *http.Request) {
 }
 
 func resetStudents(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+		return
+	}
 
 	_, err := db.Exec("UPDATE student SET here=$1, excused=$2;", false, false)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
+	http.Redirect(w, r, "/student", http.StatusSeeOther)
 }
 
-//
-// func booksDeleteProcess(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != "GET" {
-// 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-// 		return
-// 	}
-//
-// 	isbn := r.FormValue("isbn")
-// 	if isbn == "" {
-// 		http.Error(w, http.StatusText(400), http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	// delete book
-// 	_, err := db.Exec("DELETE FROM books WHERE isbn=$1;", isbn)
-// 	if err != nil {
-// 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-// 		return
-// 	}
-//
-// 	http.Redirect(w, r, "/books", http.StatusSeeOther)
-// }
+func deleteStudent(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "DELETE" {
+		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+		return
+	}
+
+	id := r.FormValue("id")
+	if id == "" {
+		http.Error(w, http.StatusText(400), http.StatusBadRequest)
+		return
+	}
+
+	// delete book
+	_, err := db.Exec("DELETE FROM student WHERE id=$1;", id)
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/student", http.StatusSeeOther)
+}
