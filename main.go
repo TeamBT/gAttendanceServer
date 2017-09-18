@@ -38,10 +38,12 @@ type Student struct {
 }
 
 func main() {
+	// os.Setenv("PORT", "8080")
 	http.HandleFunc("/", redirectStudent)
 	http.HandleFunc("/student", studentsIndex)
 	http.HandleFunc("/student/show", studentShow)
 	http.HandleFunc("/student/update", studentUpdateProcess)
+	http.HandleFunc("/student/reset", resetStudents)
 	// http.HandleFunc("/books/delete/process", booksDeleteProcess)
 	err := http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 	if err != nil {
@@ -155,6 +157,15 @@ func studentUpdateProcess(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
+	}
+}
+
+func resetStudents(w http.ResponseWriter, r *http.Request) {
+
+	_, err := db.Exec("UPDATE student SET here=$1, excused=$2;", false, false)
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
 	}
 }
 
