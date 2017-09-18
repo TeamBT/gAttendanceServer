@@ -131,7 +131,7 @@ func studentShow(w http.ResponseWriter, r *http.Request) {
 }
 
 func studentUpdateProcess(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "PUT" {
+	if r.Method != "GET" {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
