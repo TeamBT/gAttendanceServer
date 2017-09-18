@@ -25,8 +25,7 @@ func init() {
 	fmt.Println("You connected to your database.")
 }
 
-// export fields to templates
-// fields changed to uppercase
+//Student ...
 type Student struct {
 	id       string
 	Name     string
@@ -40,9 +39,6 @@ type Student struct {
 func main() {
 	http.HandleFunc("/student", studentsIndex)
 	http.HandleFunc("/student/show", studentShow)
-	// http.HandleFunc("/books/create", booksCreateForm)
-	// http.HandleFunc("/books/create/process", booksCreateProcess)
-	// http.HandleFunc("/student/update", studentUpdateForm)
 	http.HandleFunc("/student/update", studentUpdateProcess)
 	// http.HandleFunc("/books/delete/process", booksDeleteProcess)
 	http.ListenAndServe(":8080", nil)
@@ -65,7 +61,7 @@ func studentsIndex(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 
 		stud := Student{}
-		err := rows.Scan(&stud.id, &stud.Name, &stud.Rfid, &stud.Password, &stud.Partial, &stud.Here, &stud.Excused) // order matters
+		err = rows.Scan(&stud.id, &stud.Name, &stud.Rfid, &stud.Password, &stud.Partial, &stud.Here, &stud.Excused) // order matters
 
 		if err != nil {
 			http.Error(w, http.StatusText(500), 500)
@@ -123,78 +119,12 @@ func studentShow(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-//
-// func booksCreateForm(w http.ResponseWriter, r *http.Request) {
-// }
-//
-// func booksCreateProcess(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != "POST" {
-// 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-// 		return
-// 	}
-//
-// 	// get form values
-// 	bk := Book{}
-// 	bk.Isbn = r.FormValue("isbn")
-// 	bk.Title = r.FormValue("title")
-// 	bk.Author = r.FormValue("author")
-// 	p := r.FormValue("price")
-//
-// 	// validate form values
-// 	if bk.Isbn == "" || bk.Title == "" || bk.Author == "" || p == "" {
-// 		http.Error(w, http.StatusText(400), http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	// convert form values
-// 	f64, err := strconv.ParseFloat(p, 32)
-// 	if err != nil {
-// 		http.Error(w, http.StatusText(406)+"Please hit back and enter a number for the price", http.StatusNotAcceptable)
-// 		return
-// 	}
-// 	bk.Price = float32(f64)
-//
-// 	// insert values
-// 	_, err = db.Exec("INSERT INTO books (isbn, title, author, price) VALUES ($1, $2, $3, $4)", bk.Isbn, bk.Title, bk.Author, bk.Price)
-// 	if err != nil {
-// 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-// 		return
-// 	}
-// }
-//
-// func booksUpdateForm(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != "GET" {
-// 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-// 		return
-// 	}
-//
-// 	isbn := r.FormValue("isbn")
-// 	if isbn == "" {
-// 		http.Error(w, http.StatusText(400), http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	row := db.QueryRow("SELECT * FROM books WHERE isbn = $1", isbn)
-//
-// 	bk := Book{}
-// 	err := row.Scan(&bk.Isbn, &bk.Title, &bk.Author, &bk.Price)
-// 	switch {
-// 	case err == sql.ErrNoRows:
-// 		http.NotFound(w, r)
-// 		return
-// 	case err != nil:
-// 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-// 		return
-// 	}
-// }
-//
 func studentUpdateProcess(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
 
-	// get form values
 	stud := Student{}
 	stud.id = r.FormValue("id")
 	stud.Rfid = r.FormValue("rfid")
