@@ -33,12 +33,12 @@ type Student struct {
 	Rfid     string
 	Password string
 	Partial  string
-	Here     string
-	Excused  string
+	Here     bool
+	Excused  bool
 }
 
 func main() {
-	// os.Setenv("PORT", "8080")
+	os.Setenv("PORT", "8080")
 	http.HandleFunc("/", redirectStudent)
 	http.HandleFunc("/student", studentsIndex)
 	http.HandleFunc("/student/show", studentShow)
@@ -72,7 +72,7 @@ func studentsIndex(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 
 		stud := Student{}
-		err = rows.Scan(&stud.id, &stud.Name, &stud.Rfid, &stud.Password, &stud.Partial, &stud.Here, &stud.Excused) // order matters
+		err = rows.Scan(&stud.id, &stud.Name, &stud.Rfid, &stud.Password, &stud.Partial, &stud.Here, &stud.Excused)
 
 		if err != nil {
 			http.Error(w, http.StatusText(500), 500)
@@ -131,7 +131,7 @@ func studentShow(w http.ResponseWriter, r *http.Request) {
 }
 
 func studentUpdateProcess(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	if r.Method != "PATCH" {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
@@ -139,8 +139,8 @@ func studentUpdateProcess(w http.ResponseWriter, r *http.Request) {
 	stud := Student{}
 	stud.id = r.FormValue("id")
 	stud.Rfid = r.FormValue("rfid")
-	stud.Here = r.FormValue("here")
-	stud.Excused = r.FormValue("excused")
+	stud.Here = r.FormValue("here") == "true"
+	stud.Excused = r.FormValue("excused") == "true"
 
 	// insert values
 	if stud.id != "" && stud.Rfid == "" {
@@ -161,7 +161,7 @@ func studentUpdateProcess(w http.ResponseWriter, r *http.Request) {
 }
 
 func resetStudents(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	if r.Method != "GET" {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
