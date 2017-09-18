@@ -39,7 +39,7 @@ type Student struct {
 
 func main() {
 	http.HandleFunc("/student", studentsIndex)
-	// http.HandleFunc("/books/show", booksShow)
+	http.HandleFunc("/student/show", studentShow)
 	// http.HandleFunc("/books/create", booksCreateForm)
 	// http.HandleFunc("/books/create/process", booksCreateProcess)
 	// http.HandleFunc("/books/update", booksUpdateForm)
@@ -88,32 +88,41 @@ func studentsIndex(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-// func booksShow(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != "GET" {
-// 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-// 		return
-// 	}
-//
-// 	isbn := r.FormValue("isbn")
-// 	if isbn == "" {
-// 		http.Error(w, http.StatusText(400), http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	row := db.QueryRow("SELECT * FROM books WHERE isbn = $1", isbn)
-//
-// 	bk := Book{}
-// 	err := row.Scan(&bk.Isbn, &bk.Title, &bk.Author, &bk.Price)
-// 	switch {
-// 	case err == sql.ErrNoRows:
-// 		http.NotFound(w, r)
-// 		return
-// 	case err != nil:
-// 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-// 		return
-// 	}
-//
-// }
+func studentShow(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+		return
+	}
+
+	id := r.FormValue("id")
+	if id == "" {
+		http.Error(w, http.StatusText(400), http.StatusBadRequest)
+		return
+	}
+
+	row := db.QueryRow("SELECT * FROM student WHERE id = $1", id)
+
+	stud := Student{}
+	err := row.Scan(&stud.id, &stud.Name, &stud.Rfid, &stud.Password, &stud.Partial, &stud.Here, &stud.Excused)
+	switch {
+	case err == sql.ErrNoRows:
+		http.NotFound(w, r)
+		return
+	case err != nil:
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	js, err := json.Marshal(stud)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
 //
 // func booksCreateForm(w http.ResponseWriter, r *http.Request) {
 // }
