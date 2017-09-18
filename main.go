@@ -37,11 +37,16 @@ type Student struct {
 }
 
 func main() {
+	http.HandleFunc("/", redirectStudent)
 	http.HandleFunc("/student", studentsIndex)
 	http.HandleFunc("/student/show", studentShow)
 	http.HandleFunc("/student/update", studentUpdateProcess)
 	// http.HandleFunc("/books/delete/process", booksDeleteProcess)
 	http.ListenAndServe(":8080", nil)
+}
+
+func redirectStudent(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/student", http.StatusSeeOther)
 }
 
 func studentsIndex(w http.ResponseWriter, r *http.Request) {
