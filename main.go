@@ -197,17 +197,26 @@ func studentUpdateProcess(w http.ResponseWriter, r *http.Request) {
 	// get form values
 	stud := Student{}
 	stud.id = r.FormValue("id")
-	// stud.Rfid = r.FormValue("rfid")
+	stud.Rfid = r.FormValue("rfid")
 	stud.Here = r.FormValue("here")
 	stud.Excused = r.FormValue("excused")
 
 	// insert values
-	_, err := db.Exec("UPDATE student SET id = $1, here=$2, excused=$3 WHERE id=$1;", stud.id, stud.Here, stud.Excused)
-	if err != nil {
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
+	if stud.id != "" && stud.Rfid == "" {
+		_, err := db.Exec("UPDATE student SET here=$2, excused=$3 WHERE id=$1;", stud.id, stud.Here, stud.Excused)
+		if err != nil {
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
 	}
 
+	if stud.Rfid != "" && stud.id == "" {
+		_, err := db.Exec("UPDATE student SET here=$2, excused=$3 WHERE rfid=$1;", stud.Rfid, stud.Here, stud.Excused)
+		if err != nil {
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+	}
 }
 
 //
