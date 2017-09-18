@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	_ "github.com/lib/pq"
 )
@@ -37,12 +38,14 @@ type Student struct {
 }
 
 func main() {
+	port := os.Getenv("PORT")
+
 	http.HandleFunc("/", redirectStudent)
 	http.HandleFunc("/student", studentsIndex)
 	http.HandleFunc("/student/show", studentShow)
 	http.HandleFunc("/student/update", studentUpdateProcess)
 	// http.HandleFunc("/books/delete/process", booksDeleteProcess)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(port, nil)
 }
 
 func redirectStudent(w http.ResponseWriter, r *http.Request) {
