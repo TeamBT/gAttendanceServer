@@ -28,13 +28,13 @@ func init() {
 // export fields to templates
 // fields changed to uppercase
 type Student struct {
-	id       int
+	id       string
 	Name     string
 	Rfid     string
 	Password string
-	Partial  int
-	Here     bool
-	Excused  bool
+	Partial  string
+	Here     string
+	Excused  string
 }
 
 func main() {
@@ -42,8 +42,8 @@ func main() {
 	http.HandleFunc("/student/show", studentShow)
 	// http.HandleFunc("/books/create", booksCreateForm)
 	// http.HandleFunc("/books/create/process", booksCreateProcess)
-	// http.HandleFunc("/books/update", booksUpdateForm)
-	// http.HandleFunc("/books/update/process", booksUpdateProcess)
+	// http.HandleFunc("/student/update", studentUpdateForm)
+	http.HandleFunc("/student/update", studentUpdateProcess)
 	// http.HandleFunc("/books/delete/process", booksDeleteProcess)
 	http.ListenAndServe(":8080", nil)
 }
@@ -188,42 +188,28 @@ func studentShow(w http.ResponseWriter, r *http.Request) {
 // 	}
 // }
 //
-// func booksUpdateProcess(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != "POST" {
-// 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-// 		return
-// 	}
-//
-// 	// get form values
-// 	bk := Book{}
-// 	bk.Isbn = r.FormValue("isbn")
-// 	bk.Title = r.FormValue("title")
-// 	bk.Author = r.FormValue("author")
-// 	p := r.FormValue("price")
-//
-// 	// validate form values
-// 	if bk.Isbn == "" || bk.Title == "" || bk.Author == "" || p == "" {
-// 		http.Error(w, http.StatusText(400), http.StatusBadRequest)
-// 		return
-//
-// 	}
-//
-// 	// convert form values
-// 	f64, err := strconv.ParseFloat(p, 32)
-// 	if err != nil {
-// 		http.Error(w, http.StatusText(406)+"Please hit back and enter a number for the price", http.StatusNotAcceptable)
-// 		return
-// 	}
-// 	bk.Price = float32(f64)
-//
-// 	// insert values
-// 	_, err = db.Exec("UPDATE books SET isbn = $1, title=$2, author=$3, price=$4 WHERE isbn=$1;", bk.Isbn, bk.Title, bk.Author, bk.Price)
-// 	if err != nil {
-// 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-// 		return
-// 	}
-//
-// }
+func studentUpdateProcess(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+		return
+	}
+
+	// get form values
+	stud := Student{}
+	stud.id = r.FormValue("id")
+	// stud.Rfid = r.FormValue("rfid")
+	stud.Here = r.FormValue("here")
+	stud.Excused = r.FormValue("excused")
+
+	// insert values
+	_, err := db.Exec("UPDATE student SET id = $1, here=$2, excused=$3 WHERE id=$1;", stud.id, stud.Here, stud.Excused)
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+}
+
 //
 // func booksDeleteProcess(w http.ResponseWriter, r *http.Request) {
 // 	if r.Method != "GET" {
