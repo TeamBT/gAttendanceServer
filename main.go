@@ -38,7 +38,7 @@ type Student struct {
 }
 
 func main() {
-	os.Setenv("PORT", "8080")
+	// os.Setenv("PORT", "8080")
 	http.HandleFunc("/", redirectStudent)
 	http.HandleFunc("/student", studentsIndex)
 	http.HandleFunc("/student/show", studentShow)
