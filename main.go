@@ -45,6 +45,7 @@ func main() {
 	http.HandleFunc("/student/update", updateStudent)
 	http.HandleFunc("/student/delete", deleteStudent)
 	http.HandleFunc("/student/reset", resetStudents)
+
 	err := http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 	if err != nil {
 		panic(err)
@@ -91,7 +92,6 @@ func studentsIndex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
 
@@ -126,7 +126,6 @@ func studentShow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
 }
 
