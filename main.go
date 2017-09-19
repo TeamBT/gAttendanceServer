@@ -3,10 +3,11 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"os"
 
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
@@ -19,11 +20,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
-	if err = db.Ping(); err != nil {
-		panic(err)
-	}
-	fmt.Println("You connected to your database.")
 }
 
 //Student ...
@@ -37,16 +33,21 @@ type Student struct {
 }
 
 func main() {
-	// os.Setenv("PORT", "8080")
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	http.HandleFunc("/", redirectStudent)
 	http.HandleFunc("/student", studentsIndex)
 	http.HandleFunc("/student/show", studentShow)
-	http.HandleFunc("/students/create", createStudent)
+	// http.HandleFunc("/students/create", createStudent)
 	http.HandleFunc("/student/update", updateStudent)
 	http.HandleFunc("/student/delete", deleteStudent)
 	http.HandleFunc("/student/reset", resetStudents)
 
-	err := http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+	err = http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 	if err != nil {
 		panic(err)
 	}
@@ -129,18 +130,18 @@ func studentShow(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-func createStudent(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-		return
-	}
-
-	stud := Student{}
-	stud.ID = r.FormValue("id")
-	stud.Rfid = r.FormValue("rfid")
-	stud.CheckedIn = r.FormValue("checkedIn") == "true"
-	stud.Excused = r.FormValue("excused") == "true"
-}
+// func createStudent(w http.ResponseWriter, r *http.Request) {
+// 	if r.Method != "POST" {
+// 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+// 		return
+// 	}
+//
+// 	stud := Student{}
+// 	stud.ID = r.FormValue("id")
+// 	stud.Rfid = r.FormValue("rfid")
+// 	stud.CheckedIn = r.FormValue("checkedIn") == "true"
+// 	stud.Excused = r.FormValue("excused") == "true"
+// }
 
 func updateStudent(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "PUT" {
