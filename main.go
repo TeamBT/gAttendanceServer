@@ -164,7 +164,7 @@ func updateStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if stud.Rfid != "" && stud.ID == "" {
-		_, err := db.Exec("UPDATE student SET checked_in=$2, excused=$3 WHERE rfid=$1;", stud.Rfid, stud.CheckedIn, stud.Excused)
+		_, err := db.Exec("UPDATE student SET checked_in=$2 WHERE rfid=$1;", stud.Rfid, true)
 		if err != nil {
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
