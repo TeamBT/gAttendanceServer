@@ -28,13 +28,12 @@ func init() {
 
 //Student ...
 type Student struct {
-	id       string
-	Name     string
-	Rfid     string
-	Password string
-	Partial  string
-	Here     bool
-	Excused  bool
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Rfid      string `json:"rfid"`
+	Partial   string `json:"partial"`
+	CheckedIn bool   `json:"checkedIn"`
+	Excused   bool   `json:"excused"`
 }
 
 func main() {
@@ -42,9 +41,10 @@ func main() {
 	http.HandleFunc("/", redirectStudent)
 	http.HandleFunc("/student", studentsIndex)
 	http.HandleFunc("/student/show", studentShow)
-	http.HandleFunc("/student/update", studentUpdateProcess)
-	http.HandleFunc("/student/reset", resetStudents)
+	// http.HandleFunc("/students/create", createStudent)
+	http.HandleFunc("/student/update", updateStudent)
 	http.HandleFunc("/student/delete", deleteStudent)
+	http.HandleFunc("/student/reset", resetStudents)
 	err := http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 	if err != nil {
 		panic(err)
@@ -72,7 +72,7 @@ func studentsIndex(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 
 		stud := Student{}
-		err = rows.Scan(&stud.id, &stud.Name, &stud.Rfid, &stud.Password, &stud.Partial, &stud.Here, &stud.Excused)
+		err = rows.Scan(&stud.ID, &stud.Name, &stud.Rfid, &stud.Partial, &stud.CheckedIn, &stud.Excused)
 
 		if err != nil {
 			http.Error(w, http.StatusText(500), 500)
@@ -110,7 +110,7 @@ func studentShow(w http.ResponseWriter, r *http.Request) {
 	row := db.QueryRow("SELECT * FROM student WHERE id = $1", id)
 
 	stud := Student{}
-	err := row.Scan(&stud.id, &stud.Name, &stud.Rfid, &stud.Password, &stud.Partial, &stud.Here, &stud.Excused)
+	err := row.Scan(&stud.ID, &stud.Name, &stud.Rfid, &stud.Partial, &stud.CheckedIn, &stud.Excused)
 	switch {
 	case err == sql.ErrNoRows:
 		http.NotFound(w, r)
@@ -130,29 +130,41 @@ func studentShow(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-func studentUpdateProcess(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+// func createStudent(w http.ResponseWriter, r *http.Request) {
+// 	if r.Method != "POST" {
+// 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+// 		return
+// 	}
+//
+// 	stud := Student{}
+// 	stud.Id = r.FormValue("id")
+// 	stud.Rfid = r.FormValue("rfid")
+// 	stud.Here = r.FormValue("here") == "true"
+// 	stud.Excused = r.FormValue("excused") == "true"
+// }
+
+func updateStudent(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "PUT" {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
 
 	stud := Student{}
-	stud.id = r.FormValue("id")
+	stud.ID = r.FormValue("id")
 	stud.Rfid = r.FormValue("rfid")
-	stud.Here = r.FormValue("here") == "true"
+	stud.CheckedIn = r.FormValue("here") == "true"
 	stud.Excused = r.FormValue("excused") == "true"
 
-	// insert values
-	if stud.id != "" && stud.Rfid == "" {
-		_, err := db.Exec("UPDATE student SET here=$2, excused=$3 WHERE id=$1;", stud.id, stud.Here, stud.Excused)
+	if stud.ID != "" && stud.Rfid == "" {
+		_, err := db.Exec("UPDATE student SET checked_in=$2, excused=$3 WHERE id=$1;", stud.ID, stud.CheckedIn, stud.Excused)
 		if err != nil {
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
 	}
 
-	if stud.Rfid != "" && stud.id == "" {
-		_, err := db.Exec("UPDATE student SET here=$2, excused=$3 WHERE rfid=$1;", stud.Rfid, stud.Here, stud.Excused)
+	if stud.Rfid != "" && stud.ID == "" {
+		_, err := db.Exec("UPDATE student SET checked_in=$2, excused=$3 WHERE rfid=$1;", stud.Rfid, stud.CheckedIn, stud.Excused)
 		if err != nil {
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
@@ -166,7 +178,7 @@ func resetStudents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err := db.Exec("UPDATE student SET here=$1, excused=$2;", false, false)
+	_, err := db.Exec("UPDATE student SET checked_in=$1, excused=$2;", false, false)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
@@ -186,7 +198,6 @@ func deleteStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// delete book
 	_, err := db.Exec("DELETE FROM student WHERE id=$1;", id)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
