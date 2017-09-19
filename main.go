@@ -42,7 +42,7 @@ func main() {
 	http.HandleFunc("/", redirectStudent)
 	http.HandleFunc("/student", studentsIndex)
 	http.HandleFunc("/student/show", studentShow)
-	// http.HandleFunc("/students/create", createStudent)
+	http.HandleFunc("/student/create", createStudent)
 	http.HandleFunc("/student/update", updateStudent)
 	http.HandleFunc("/student/delete", deleteStudent)
 	http.HandleFunc("/student/reset", resetStudents)
@@ -130,18 +130,26 @@ func studentShow(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-// func createStudent(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != "POST" {
-// 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-// 		return
-// 	}
-//
-// 	stud := Student{}
-// 	stud.ID = r.FormValue("id")
-// 	stud.Rfid = r.FormValue("rfid")
-// 	stud.CheckedIn = r.FormValue("checkedIn") == "true"
-// 	stud.Excused = r.FormValue("excused") == "true"
-// }
+func createStudent(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+		return
+	}
+
+	stud := Student{}
+	stud.ID = r.FormValue("id")
+	stud.Name = r.FormValue("name")
+	stud.Rfid = r.FormValue("rfid")
+	stud.Partial = r.FormValue("partial")
+	stud.CheckedIn = r.FormValue("checkedIn") == "true"
+	stud.Excused = r.FormValue("excused") == "true"
+
+	_, err := db.Exec("INSERT INTO student (name, rfid, partial, checked_in, excused) VALUES ($1, $2, $3, $4, $5)", stud.Name, stud.Rfid, stud.Partial, stud.CheckedIn, stud.Excused)
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+}
 
 func updateStudent(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "PUT" {
