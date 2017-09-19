@@ -41,7 +41,7 @@ func main() {
 	http.HandleFunc("/", redirectStudent)
 	http.HandleFunc("/student", studentsIndex)
 	http.HandleFunc("/student/show", studentShow)
-	// http.HandleFunc("/students/create", createStudent)
+	http.HandleFunc("/students/create", createStudent)
 	http.HandleFunc("/student/update", updateStudent)
 	http.HandleFunc("/student/delete", deleteStudent)
 	http.HandleFunc("/student/reset", resetStudents)
@@ -130,18 +130,18 @@ func studentShow(w http.ResponseWriter, r *http.Request) {
 	w.Write(js)
 }
 
-// func createStudent(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != "POST" {
-// 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-// 		return
-// 	}
-//
-// 	stud := Student{}
-// 	stud.Id = r.FormValue("id")
-// 	stud.Rfid = r.FormValue("rfid")
-// 	stud.Here = r.FormValue("here") == "true"
-// 	stud.Excused = r.FormValue("excused") == "true"
-// }
+func createStudent(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+		return
+	}
+
+	stud := Student{}
+	stud.ID = r.FormValue("id")
+	stud.Rfid = r.FormValue("rfid")
+	stud.CheckedIn = r.FormValue("checkedIn") == "true"
+	stud.Excused = r.FormValue("excused") == "true"
+}
 
 func updateStudent(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "PUT" {
@@ -152,7 +152,7 @@ func updateStudent(w http.ResponseWriter, r *http.Request) {
 	stud := Student{}
 	stud.ID = r.FormValue("id")
 	stud.Rfid = r.FormValue("rfid")
-	stud.CheckedIn = r.FormValue("here") == "true"
+	stud.CheckedIn = r.FormValue("checkedIn") == "true"
 	stud.Excused = r.FormValue("excused") == "true"
 
 	if stud.ID != "" && stud.Rfid == "" {
