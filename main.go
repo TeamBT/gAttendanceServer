@@ -13,6 +13,8 @@ import (
 
 var db *sql.DB
 
+const get string = "GET"
+
 func init() {
 	var err error
 	db, err = sql.Open("postgres", "postgres://jwuzvvbakkswqj:638c8277583ccec74041d91560bd319728949fe1a8085eb0570ad9e7e29cbf3c@ec2-54-243-255-57.compute-1.amazonaws.com:5432/derfn0d9nq69b3")
@@ -56,7 +58,7 @@ func redirectStudent(w http.ResponseWriter, r *http.Request) {
 }
 
 func studentsIndex(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != get {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
@@ -96,7 +98,7 @@ func studentsIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func studentShow(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != get {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
@@ -176,7 +178,7 @@ func updateStudent(w http.ResponseWriter, r *http.Request) {
 }
 
 func resetStudents(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != get {
 		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 		return
 	}
