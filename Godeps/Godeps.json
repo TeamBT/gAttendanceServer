@@ -17,6 +17,14 @@
 			"ImportPath": "github.com/lib/pq/oid",
 			"Comment": "go1.0-cutoff-175-ge422674",
 			"Rev": "e42267488fe361b9dc034be7a6bffef5b195bceb"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/bcrypt",
+			"Rev": "b0c9c05bfe149df95eb1d25642162cca051e0466"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/blowfish",
+			"Rev": "b0c9c05bfe149df95eb1d25642162cca051e0466"
 		}
 	]
 }
