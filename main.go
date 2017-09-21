@@ -9,6 +9,7 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var db *sql.DB
@@ -33,6 +34,10 @@ type Student struct {
 	Excused   bool   `json:"excused"`
 }
 
+type instructor struct {
+	Password string
+}
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -40,6 +45,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", redirectStudent)
+	http.HandleFunc("/login", instructorLogin)
 	http.HandleFunc("/student", studentsIndex)
 	http.HandleFunc("/student/show", studentShow)
 	http.HandleFunc("/student/create", createStudent)
@@ -55,6 +61,31 @@ func main() {
 
 func redirectStudent(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/student", http.StatusSeeOther)
+}
+
+func instructorLogin(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+		return
+	}
+
+	name := r.FormValue("name")
+	password := r.FormValue("password")
+
+	var hashPass string
+
+	err := db.QueryRow("SELECT password FROM instructor WHERE name = $1", name).Scan(&hashPass)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(hashPass), []byte(password))
+	if err != nil {
+		w.Write([]byte("Incorrect username / password"))
+	} else {
+		w.Write([]byte("Hello, " + name))
+	}
+
 }
 
 func studentsIndex(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +105,6 @@ func studentsIndex(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		stud := Student{}
 		err = rows.Scan(&stud.ID, &stud.Name, &stud.Rfid, &stud.CheckedIn, &stud.Excused)
-
 		if err != nil {
 			http.Error(w, http.StatusText(500), 500)
 			return
