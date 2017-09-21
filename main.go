@@ -27,7 +27,6 @@ type Student struct {
 	ID        string `json:"id"`
 	Name      string `json:"name"`
 	Rfid      string `json:"rfid"`
-	Partial   string `json:"partial"`
 	CheckedIn bool   `json:"checkedIn"`
 	Excused   bool   `json:"excused"`
 }
@@ -72,7 +71,7 @@ func studentsIndex(w http.ResponseWriter, r *http.Request) {
 	studs := make([]Student, 0)
 	for rows.Next() {
 		stud := Student{}
-		err = rows.Scan(&stud.ID, &stud.Name, &stud.Rfid, &stud.Partial, &stud.CheckedIn, &stud.Excused)
+		err = rows.Scan(&stud.ID, &stud.Name, &stud.Rfid, &stud.CheckedIn, &stud.Excused)
 
 		if err != nil {
 			http.Error(w, http.StatusText(500), 500)
@@ -111,7 +110,7 @@ func studentShow(w http.ResponseWriter, r *http.Request) {
 	row := db.QueryRow("SELECT * FROM student WHERE id = $1", id)
 
 	stud := Student{}
-	err := row.Scan(&stud.ID, &stud.Name, &stud.Rfid, &stud.Partial, &stud.CheckedIn, &stud.Excused)
+	err := row.Scan(&stud.ID, &stud.Name, &stud.Rfid, &stud.CheckedIn, &stud.Excused)
 	switch {
 	case err == sql.ErrNoRows:
 		http.NotFound(w, r)
@@ -140,7 +139,7 @@ func createStudent(w http.ResponseWriter, r *http.Request) {
 	stud.Name = r.FormValue("name")
 	stud.Rfid = r.FormValue("rfid")
 
-	_, err := db.Exec("INSERT INTO student (name, rfid, partial, checked_in, excused) VALUES ($1, $2, $3, $4, $5)", stud.Name, stud.Rfid, 0, false, false)
+	_, err := db.Exec("INSERT INTO student (name, rfid, checked_in, excused) VALUES ($1, $2, $3, $4)", stud.Name, stud.Rfid, false, false)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
