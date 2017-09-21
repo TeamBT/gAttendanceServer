@@ -33,7 +33,6 @@ type Student struct {
 }
 
 func main() {
-
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -72,7 +71,6 @@ func studentsIndex(w http.ResponseWriter, r *http.Request) {
 
 	studs := make([]Student, 0)
 	for rows.Next() {
-
 		stud := Student{}
 		err = rows.Scan(&stud.ID, &stud.Name, &stud.Rfid, &stud.Partial, &stud.CheckedIn, &stud.Excused)
 
@@ -81,7 +79,9 @@ func studentsIndex(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		studs = append(studs, stud)
+
 	}
+
 	if err = rows.Err(); err != nil {
 		http.Error(w, http.StatusText(500), 500)
 		return
@@ -137,14 +137,10 @@ func createStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stud := Student{}
-	stud.ID = r.FormValue("id")
 	stud.Name = r.FormValue("name")
 	stud.Rfid = r.FormValue("rfid")
-	stud.Partial = r.FormValue("partial")
-	stud.CheckedIn = r.FormValue("checkedIn") == "true"
-	stud.Excused = r.FormValue("excused") == "true"
 
-	_, err := db.Exec("INSERT INTO student (name, rfid, partial, checked_in, excused) VALUES ($1, $2, $3, $4, $5)", stud.Name, stud.Rfid, stud.Partial, stud.CheckedIn, stud.Excused)
+	_, err := db.Exec("INSERT INTO student (name, rfid, partial, checked_in, excused) VALUES ($1, $2, $3, $4, $5)", stud.Name, stud.Rfid, 0, false, false)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
@@ -172,7 +168,7 @@ func updateStudent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if stud.Rfid != "" && stud.ID == "" {
-		_, err := db.Exec("UPDATE student SET checked_in=$2 WHERE rfid=$1;", stud.Rfid, true)
+		_, err := db.Exec("UPDATE student SET checked_in=$2, excused=$3 WHERE rfid=$1;", stud.Rfid, true, nil)
 		if err != nil {
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
