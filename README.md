@@ -16,4 +16,4 @@ Delete a student: ```/student/delete?id=STUDENT_ID```
 
 Reset database so everyone is marked absent: ```/reset```
 
-To create a student make a post request with form data containing name and rfid number to ```/student/create```
+To create a student: ```/student/create?name=STUDENT_NAME&rfid=STUDENT_RFID```
