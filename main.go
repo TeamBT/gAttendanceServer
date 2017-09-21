@@ -35,7 +35,8 @@ type Student struct {
 }
 
 type instructor struct {
-	Password string
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 func main() {
@@ -46,6 +47,7 @@ func main() {
 
 	http.HandleFunc("/", redirectStudent)
 	http.HandleFunc("/login", instructorLogin)
+	http.HandleFunc("/instructor", instructorsIndex)
 	http.HandleFunc("/student", studentsIndex)
 	http.HandleFunc("/student/show", studentShow)
 	http.HandleFunc("/student/create", createStudent)
@@ -85,7 +87,45 @@ func instructorLogin(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Write([]byte("Hello, " + name))
 	}
+}
 
+func instructorsIndex(w http.ResponseWriter, r *http.Request) {
+	if r.Method != get {
+		http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+		return
+	}
+
+	rows, err := db.Query("SELECT id, name FROM instructor")
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	defer rows.Close()
+
+	instructors := make([]instructor, 0)
+	for rows.Next() {
+		inst := instructor{}
+		err = rows.Scan(&inst.ID, &inst.Name)
+		if err != nil {
+			http.Error(w, http.StatusText(500), 500)
+			return
+		}
+		instructors = append(instructors, inst)
+
+	}
+
+	if err = rows.Err(); err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	js, err := json.Marshal(instructors)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(js)
 }
 
 func studentsIndex(w http.ResponseWriter, r *http.Request) {
